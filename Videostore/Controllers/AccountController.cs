@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Videostore.Models;
@@ -151,14 +152,35 @@ namespace Videostore.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser {
+                    
+                    UserName = model.Email,
+                    Email = model.Email ,
+                    DrivingLicense = model.DrivingLicense //dodadeno od mene
+                };
+
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+
+                    //Privremen code za da registrirame so plus beneficii user(primer managerska dozvola da ima za bisenje i dodavanje na filmovi
+                    //Ova se kuca ednas pa se registrirame i toj ke ima ovie beneficii posle odma go briseme ili komentirame kodov
+                           //______________________________________________________________________________________    
+                    //var roleStore = new RoleStore<IdentityRole>(new ApplicationDbContext());
+                    //var roleManager = new RoleManager<IdentityRole>(roleStore);
+                    //await roleManager.CreateAsync(new IdentityRole("CanManageMovies"));
+                    //await UserManager.AddToRoleAsync(user.Id, "CanManageMovies");
+                          //_______________________________________________________________________________________   
+
+
+                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);//ako ja ignorirame so comment
+                    // ovaa linija nema direkt da ne pusti da vlezeme iako tocno ke se registrirame t.e ke nema Modelstate problemi 
+                    //,a ako gi odkomentirame dole liniite, string code  i drugite dve pod nea, ke ni prati prvo mail za konfirmacija
+                         //______________________________________________________________________________________________________________________
+                 
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
+
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
@@ -367,7 +389,12 @@ namespace Videostore.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    DrivingLicense =model.DrivingLicense
+                };
+
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
